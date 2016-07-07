@@ -1,0 +1,11 @@
+{
+  "display_name": "Julia 0.3.12",
+  "argv": [
+    "/Applications/Julia-0.3.12.app/Contents/Resources/julia/bin/julia",
+    "-i",
+    "-F",
+    "/Users/wookyoung/.julia/v0.3/IJulia/src/kernel.jl",
+    "{connection_file}"
+  ],
+  "language": "julia"
+}

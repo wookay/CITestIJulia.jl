@@ -1,0 +1,11 @@
+{
+  "display_name": "Julia 0.5.0-dev",
+  "argv": [
+    "/Users/wookyoung/head/julia/usr/bin/julia",
+    "-i",
+    "--startup-file=yes",
+    "/Users/wookyoung/.julia/v0.5/IJulia/src/kernel.jl",
+    "{connection_file}"
+  ],
+  "language": "julia"
+}
