@@ -33,7 +33,7 @@ build_script:
   - cd IJulia.jl
   - IF EXIST .git\shallow (git fetch --unshallow)
   - C:\projects\julia\bin\julia -e "versioninfo();
-      Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"
+      Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"ZMQ\", \"IJulia\")"
 
 test_script:
   - C:\projects\julia\bin\julia --check-bounds=yes -e "Pkg.test(\"IJulia\")"
