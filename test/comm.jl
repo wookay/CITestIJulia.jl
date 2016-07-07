@@ -13,3 +13,4 @@ comm = Comm(target, comm_id)
 @test comm.primary
 
 close(IJulia.ctx)
+close(IJulia.publish)
