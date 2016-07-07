@@ -28,6 +28,9 @@ install:
 
 build_script:
 # Need to convert from shallow to complete for Pkg.clone to work
+  - cd ..
+  - git clone https://github.com/wookay/CITestIJulia.jl.git IJulia.jl
+  - cd IJulia.jl
   - IF EXIST .git\shallow (git fetch --unshallow)
   - C:\projects\julia\bin\julia -e "versioninfo();
       Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"

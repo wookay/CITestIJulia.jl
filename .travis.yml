@@ -9,6 +9,9 @@ julia:
 notifications:
   email: false
 before_install:
+  - cd ..
+  - git clone https://github.com/wookay/CITestIJulia.jl.git IJulia.jl
+  - cd IJulia.jl
   - if [ ${TRAVIS_OS_NAME} == "osx" ]; then brew update >/dev/null 2>&1; fi
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
