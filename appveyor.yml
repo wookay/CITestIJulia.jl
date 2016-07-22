@@ -19,6 +19,7 @@ notifications:
     on_build_status_changed: false
 
 cache:
+  - C:\Users\appveyor\.julia\.cache -> appveyor.yml
   - C:\Users\appveyor\.julia\v0.3\WinRPM\cache -> appveyor.yml
 
 install:
