@@ -36,8 +36,9 @@ build_script:
   - git clone https://github.com/wookay/CITestIJulia.jl.git IJulia.jl
   - cd IJulia.jl
   - IF EXIST .git\shallow (git fetch --unshallow)
-  - C:\projects\julia\bin\julia -e "Pkg.add(\"WinRPM\");
-      cd(Pkg.dir(\"WinRPM\")); run(`git pull origin master`); run(`git checkout v0.2.0`)"
+  - C:\projects\julia\bin\julia -e "Pkg.rm(\"WinRPM\")"
+  #- C:\projects\julia\bin\julia -e "Pkg.add(\"WinRPM\");
+  #    cd(Pkg.dir(\"WinRPM\")); run(`git pull origin master`); run(`git checkout v0.2.0`)"
   - C:\projects\julia\bin\julia -e "versioninfo();
       Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"
 
