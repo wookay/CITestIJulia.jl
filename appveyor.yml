@@ -32,7 +32,7 @@ build_script:
   - git clone https://github.com/wookay/CITestIJulia.jl.git IJulia.jl
   - cd IJulia.jl
   - IF EXIST .git\shallow (git fetch --unshallow)
-  - C:\projects\julia\bin\julia -e "Pkg.add(\"Conda\", v\"0.1.5\");
+  - C:\projects\julia\bin\julia -e "Pkg.add(\"Conda\", v\"0.1.7\");
       using Conda; Conda.add(\"jupyter\")"
   - C:\projects\julia\bin\julia -e "versioninfo();
       Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"
