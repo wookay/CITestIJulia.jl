@@ -34,8 +34,8 @@ build_script:
 # Need to convert from shallow to complete for Pkg.clone to work
   - cd ..
   - git clone https://github.com/wookay/CITestIJulia.jl.git IJulia.jl
-  #- cd IJulia.jl
-  #- IF EXIST .git\shallow (git fetch --unshallow)
+  - cd IJulia.jl
+  - IF EXIST .git\shallow (git fetch --unshallow)
   #- C:\projects\julia\bin\julia -e "versioninfo(true)"
   #- C:\projects\julia\bin\julia -e "Pkg.add(\"Nettle\")"
   #- C:\projects\julia\bin\julia -e "Pkg.add(\"ZMQ\")"
