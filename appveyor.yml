@@ -37,14 +37,17 @@ build_script:
   - cd IJulia.jl
   - IF EXIST .git\shallow (git fetch --unshallow)
   - C:\projects\julia\bin\julia -e "versioninfo(true)"
-  - C:\projects\julia\bin\julia -e "Pkg.rm(\"WinRPM\")"
-  - C:\projects\julia\bin\julia -e "Pkg.add(\"WinRPM\");
-      cd(Pkg.dir(\"WinRPM\"));
-      run(`git pull origin master`);
-      run(`git reset HEAD --hard`);
-      run(`git checkout v0.2.0`);
-      Pkg.build(\"WinRPM\"); using WinRPM; WinRPM.update()"
+  #- C:\projects\julia\bin\julia -e "Pkg.rm(\"WinRPM\")"
+  #- C:\projects\julia\bin\julia -e "Pkg.add(\"WinRPM\");
+  #    cd(Pkg.dir(\"WinRPM\"));
+  #    run(`git pull origin master`);
+  #    run(`git reset HEAD --hard`);
+  #    run(`git checkout v0.2.0`);
+  #    Pkg.build(\"WinRPM\"); using WinRPM; WinRPM.update()"
   - C:\projects\julia\bin\julia -e "Pkg.add(\"Nettle\");
+      cd(Pkg.dir(\"Nettle\"));
+      run(`git pull origin master`);
+      run(`git checkout master`);
       Pkg.build(\"Nettle\")"
   - C:\projects\julia\bin\julia -e "versioninfo();
       Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"
