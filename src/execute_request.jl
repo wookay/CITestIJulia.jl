@@ -73,7 +73,7 @@ end
 
 # return the content of a pyerr message for exception e
 function error_content(e, bt=catch_backtrace(); backtrace_top::Symbol=:execute_request_0x535c5df2, msg::AbstractString="")
-    tb = map(Compat.UTF8String, @compat(split(sprint(show_bt,
+    tb = map(x->convert(Compat.UTF8String, x), @compat(split(sprint(show_bt,
                                         backtrace_top,
                                         bt, 1:typemax(Int)),
                                  "\n", keep=true)))

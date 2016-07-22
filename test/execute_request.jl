@@ -1,6 +1,6 @@
 using Base.Test
 
-import IJulia: helpcode
+import IJulia: helpcode, error_content
 
 if VERSION < v"0.4.0-dev+2891"
     @test "Base.@help +" == helpcode("+")
@@ -15,3 +15,7 @@ else
         @test """eval(:(Base.Docs.@repl \$(Symbol("import"))))""" == helpcode("import")
     end
 end
+
+
+content = error_content(UndefVarError(:a))
+@test "UndefVarError" == content["ename"]

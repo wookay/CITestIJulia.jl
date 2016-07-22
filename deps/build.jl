@@ -59,10 +59,10 @@ debugdesc = ccall(:jl_is_debugbuild,Cint,())==1 ? "-debug" : ""
 spec_name = "julia-$(VERSION.major).$(VERSION.minor)"*debugdesc
 juliakspec = abspath(spec_name)
 
-binary_name = @windows? "julia.exe":"julia"
+binary_name = @static is_windows() ? "julia.exe" : "julia"
 kernelcmd_array = String[joinpath(JULIA_HOME,("$binary_name")), "-i"]
 ijulia_dir = get(ENV, "IJULIA_DIR", Pkg.dir("IJulia")) # support non-Pkg IJulia installs
-startupfile = VERSION >= v"0.4-" ? "--startup-file=yes" : "-F"
+startupfile = VERSION >= v"0.4" ? "--startup-file=yes" : "-F"
 append!(kernelcmd_array, [startupfile, joinpath(ijulia_dir,"src","kernel.jl"), "{connection_file}"])
 
 ks = @compat Dict(
@@ -107,14 +107,15 @@ try
     run(`$jupyter kernelspec install --replace --user $juliakspec`)
     push!(notebook, jupyter, "notebook")
 catch
-    @unix_only begin
+    @static if is_unix()
         run(`$jupyter-kernelspec install --replace --user $juliakspec`)
         push!(notebook, jupyter * "-notebook")
     end
 
     # issue #363:
-    @windows_only begin
+    @static if is_windows()
         jupyter_dir = dirname(jupyter)
+        jks_exe = ""
         if jupyter_dir == abspath(Conda.SCRIPTDIR)
             jk_path = "$jupyter-kernelspec"
             if isfile(jk_path * "-script.py")

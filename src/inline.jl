@@ -11,11 +11,11 @@ immutable InlineDisplay <: Display end
 
 # supported MIME types for inline display in IPython, in descending order
 # of preference (descending "richness")
-const ipy_mime = [ "text/html", "text/latex", "image/svg+xml", "image/png", "image/jpeg", "text/plain", "text/markdown" ]
+const ipy_mime = [ "text/html", "text/latex", "image/svg+xml", "image/png", "image/jpeg", "text/plain", "text/markdown", "application/javascript" ]
 
 for mime in ipy_mime
     @eval begin
-        function display(d::InlineDisplay, ::MIME{@compat Symbol($mime)}, x)
+        function display(d::InlineDisplay, ::MIME{@compat(Symbol($mime))}, x)
             send_ipython(publish,
                          msg_pub(execute_msg, "display_data",
                                  @compat Dict("source" => "julia", # optional
@@ -27,6 +27,9 @@ end
 
 # deal with annoying application/x-latex == text/latex synonyms
 display(d::InlineDisplay, m::MIME"application/x-latex", x) = display(d, MIME("text/latex"), stringmime(m, x))
+
+# deal with annoying text/javascript == application/javascript synonyms
+display(d::InlineDisplay, m::MIME"text/javascript", x) = display(d, MIME("application/javascript"), stringmime(m, x))
 
 # override display to send IPython a dictionary of all supported
 # output types, so that IPython can choose what to display.
