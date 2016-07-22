@@ -43,7 +43,7 @@ build_script:
       run(`git pull origin master`);
       run(`git reset HEAD --hard`);
       run(`git checkout v0.2.0`);
-      Pkg.build(\"WinRPM\")"
+      Pkg.build(\"WinRPM\"); using WinRPM; WinRPM.update()"
   - C:\projects\julia\bin\julia -e "Pkg.add(\"Nettle\");
       Pkg.build(\"Nettle\")"
   - C:\projects\julia\bin\julia -e "versioninfo();
