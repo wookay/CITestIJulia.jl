@@ -37,7 +37,7 @@ if jupyter_vers < v"3.0" || dirname(jupyter) == abspath(Conda.SCRIPTDIR)
     conda = Conda.conda
     pkg = "jupyter"
     Conda._install_conda()
-    run(Conda._set_conda_env(`$conda install -y -v $pkg`))
+    run(Conda._set_conda_env(`$conda install -y --debug $pkg`))
 end
 
     jupyter = abspath(Conda.SCRIPTDIR,"jupyter")
