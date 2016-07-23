@@ -50,10 +50,10 @@ build_script:
   #    Pkg.build(\"WinRPM\"); using WinRPM; WinRPM.update()"
   - C:\projects\julia\bin\julia -e "Pkg.init(); Pkg.add(\"WinRPM\")"
   - C:\projects\julia\bin\julia -F -e "versioninfo(true); Pkg.clone(pwd(), \"IJulia\")"
-  - if [[ $env:JULIAVERSION == *julia-0.3* ]] {
+  - IF ($env:JULIAVERSION -match "julia\-0\.3") {
         echo "=== 0.3"
         C:\projects\julia\bin\julia -F -e "Pkg.build(\"IJulia\")"
-    } else {
+    } ELSE {
         echo "=== else"
         C:\projects\julia\bin\julia --startup-file=yes -e "Pkg.build(\"IJulia\")"
     }
