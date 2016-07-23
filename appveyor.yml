@@ -54,11 +54,12 @@ build_script:
 # Unable to find Digest::SHA or Digest::SHA::PurePerl
 #  - '"%VS120COMNTOOLS%\..\..\VC\vcvarsall.bat" x86_amd64'
   - C:\projects\julia\bin\julia -e "versioninfo(true)"
-  - C:\projects\julia\bin\julia -e "Pkg.init(); Pkg.add(\"WinRPM\");
-    using WinRPM; WinRPM.update(true)"
-  - C:\projects\julia\bin\julia -e "Pkg.clone(pwd(), \"IJulia\")"
-  - ECHO %JULIAVERSION% | FINDSTR /R "julia-0.3" > nul & IF NOT ERRORLEVEL 1 C:\projects\julia\bin\julia -F -e "Pkg.build(\"IJulia\")"
-  - ECHO %JULIAVERSION% | FINDSTR /R "julia-0.3" > nul & IF ERRORLEVEL 1 C:\projects\julia\bin\julia --startup-file=yes -e "Pkg.build(\"IJulia\")"
+  #- C:\projects\julia\bin\julia -e "Pkg.init(); Pkg.add(\"WinRPM\");
+  #  using WinRPM; WinRPM.update(true)"
+  - ECHO %JULIAVERSION% | FINDSTR /R "julia-0.3" > nul & IF NOT ERRORLEVEL 1
+    C:\projects\julia\bin\julia -F -e "Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"
+  - ECHO %JULIAVERSION% | FINDSTR /R "julia-0.3" > nul & IF ERRORLEVEL 1
+    C:\projects\julia\bin\julia --startup-file=yes -e "Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"
 
 test_script:
   - C:\projects\julia\bin\julia --check-bounds=yes -e "Pkg.test(\"IJulia\")"
