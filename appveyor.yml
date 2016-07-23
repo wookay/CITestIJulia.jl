@@ -54,10 +54,7 @@ build_script:
   - set PATH=%PATH:C:\MinGW\bin;=%
 # Remove C:\Perl\bin from the path, otherwise it breaks shasum with an error
 # Unable to find Digest::SHA or Digest::SHA::PurePerl
-  - set PATH=%PATH:C:\Perl\bin;=%
 #  - '"%VS120COMNTOOLS%\..\..\VC\vcvarsall.bat" x86_amd64'
-  - C:\msys64\usr\bin\sh.exe --login /c/projects/julia/contrib/windows/msys_build.sh
-
   - C:\projects\julia\bin\julia -e "versioninfo(true)"
   - C:\projects\julia\bin\julia -e "Pkg.init(); Pkg.add(\"WinRPM\");
     using WinRPM; WinRPM.update(true)"
