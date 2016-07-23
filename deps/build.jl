@@ -33,7 +33,7 @@ for p in (haskey(ENV, "JUPYTER") ? (ENV["JUPYTER"],) : (isfile("JUPYTER") ? read
 end
 if jupyter_vers < v"3.0" || dirname(jupyter) == abspath(Conda.SCRIPTDIR)
     info("Installing Jupyter via the Conda package.")
-    Conda.add("jupyter")
+    Conda.add("-v jupyter")
     jupyter = abspath(Conda.SCRIPTDIR,"jupyter")
     jupyter_vers = prog_version(jupyter)
     jupyter_vers < v"3.0" && error("failed to find $jupyter 3.0 or later")
