@@ -39,11 +39,10 @@ install:
 
 build_script:
 # If there's a newer build queued for the same PR, cancel this one
-  - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -and $env:APPVEYOR_BUILD_NUMBER -ne ((Invoke-RestMethod `
-        https://ci.appveyor.com/api/projects/$env:APPVEYOR_ACCOUNT_NAME/$env:APPVEYOR_PROJECT_SLUG/history?recordsNumber=50).builds | `
-        Where-Object pullRequestId -eq $env:APPVEYOR_PULL_REQUEST_NUMBER)[0].buildNumber) { `
-        throw "There are newer queued builds for this pull request, failing early." }
-# Need to convert from shallow to complete for Pkg.clone to work
+  - ECHO %JULIAVERSION% | FINDSTR /R "julia-0.3" > nul
+  - IF NOT ERRORLEVEL 1 ECHO "f1"
+  - IF ERRORLEVEL 1     ECHO "f2"
+
   - cd ..
   - git clone https://github.com/wookay/CITestIJulia.jl.git IJulia.jl
   - cd IJulia.jl
@@ -60,8 +59,8 @@ build_script:
     using WinRPM; WinRPM.update(true)"
   - C:\projects\julia\bin\julia -e "Pkg.clone(pwd(), \"IJulia\")"
   - ECHO %JULIAVERSION% | FINDSTR /R "julia-0.3" > nul
-  - IF NOT %ERRORLEVEL% 1 C:\projects\julia\bin\julia -F -e "Pkg.build(\"IJulia\")"
-  - IF %ERRORLEVEL% 1 C:\projects\julia\bin\julia --startup-file=yes -e "Pkg.build(\"IJulia\")"
+  - IF NOT ERRORLEVEL 1 C:\projects\julia\bin\julia -F -e "Pkg.build(\"IJulia\")"
+  - IF ERRORLEVEL 1 C:\projects\julia\bin\julia --startup-file=yes -e "Pkg.build(\"IJulia\")"
 
 test_script:
   - C:\projects\julia\bin\julia --check-bounds=yes -e "Pkg.test(\"IJulia\")"
