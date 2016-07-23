@@ -20,8 +20,8 @@ notifications:
 
 cache:
   - C:\Users\appveyor\.julia\.cache -> appveyor.yml
-  - C:\Users\appveyor\.julia\v0.3\WinRPM\cache -> appveyor.yml
-  - C:\Users\appveyor\.julia\v0.5\WinRPM\cache -> appveyor.yml
+  - C:\Users\appveyor\.julia\v0.3\WinRPM -> appveyor.yml
+  - C:\Users\appveyor\.julia\v0.5\WinRPM -> appveyor.yml
 
 install:
 # Download most recent Julia Windows binary
