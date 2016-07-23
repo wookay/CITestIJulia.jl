@@ -18,10 +18,16 @@ notifications:
     on_build_failure: false
     on_build_status_changed: false
 
+
+clone_depth: 50
+
+init:
+# Carriage returns are bad
+  - git config --global core.autocrlf input
+
 cache:
-  - C:\Users\appveyor\.julia\.cache -> appveyor.yml
-  - C:\Users\appveyor\.julia\v0.3\WinRPM -> appveyor.yml
-  - C:\Users\appveyor\.julia\v0.5\WinRPM -> appveyor.yml
+# Cache large downloads to avoid network unreliability
+  - usr/bin/busybox.exe
 
 install:
 # Download most recent Julia Windows binary
@@ -32,29 +38,32 @@ install:
   - C:\projects\julia-binary.exe /S /D=C:\projects\julia
 
 build_script:
+# If there's a newer build queued for the same PR, cancel this one
+  - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -and $env:APPVEYOR_BUILD_NUMBER -ne ((Invoke-RestMethod `
+        https://ci.appveyor.com/api/projects/$env:APPVEYOR_ACCOUNT_NAME/$env:APPVEYOR_PROJECT_SLUG/history?recordsNumber=50).builds | `
+        Where-Object pullRequestId -eq $env:APPVEYOR_PULL_REQUEST_NUMBER)[0].buildNumber) { `
+        throw "There are newer queued builds for this pull request, failing early." }
 # Need to convert from shallow to complete for Pkg.clone to work
   - cd ..
   - git clone https://github.com/wookay/CITestIJulia.jl.git IJulia.jl
   - cd IJulia.jl
   - IF EXIST .git\shallow (git fetch --unshallow)
-  #- C:\projects\julia\bin\julia -e "versioninfo(true)"
-  #- C:\projects\julia\bin\julia -e "Pkg.add(\"Nettle\")"
-  #- C:\projects\julia\bin\julia -e "Pkg.add(\"ZMQ\")"
-  #- C:\projects\julia\bin\julia -F -e "Pkg.build(\"Nettle\")"
-  #- C:\projects\julia\bin\julia -F -e "Pkg.build(\"ZMQ\")"
-  #- C:\projects\julia\bin\julia -e "Pkg.rm(\"WinRPM\")"
-  #- C:\projects\julia\bin\julia -e "Pkg.add(\"WinRPM\");
-  #    cd(Pkg.dir(\"WinRPM\"));
-  #    run(`git pull origin master`);
-  #    run(`git reset HEAD --hard`);
-  #    run(`git checkout v0.2.0`);
-  #    Pkg.build(\"WinRPM\"); using WinRPM; WinRPM.update()"
+
+# Remove C:\MinGW\bin from the path, the version of MinGW installed on
+# AppVeyor is not compatible with the cross-compiled Julia Windows binaries
+  - set PATH=%PATH:C:\MinGW\bin;=%
+# Remove C:\Perl\bin from the path, otherwise it breaks shasum with an error
+# Unable to find Digest::SHA or Digest::SHA::PurePerl
+  - set PATH=%PATH:C:\Perl\bin;=%
+#  - '"%VS120COMNTOOLS%\..\..\VC\vcvarsall.bat" x86_amd64'
+  - C:\msys64\usr\bin\sh.exe --login /c/projects/julia/contrib/windows/msys_build.sh
+
   - C:\projects\julia\bin\julia -e "versioninfo(true)"
   - C:\projects\julia\bin\julia -e "Pkg.init(); Pkg.add(\"WinRPM\");
     using WinRPM; WinRPM.update(true)"
   - C:\projects\julia\bin\julia -e "Pkg.clone(pwd(), \"IJulia\")"
-  - ECHO JULIAVERSION | FINDSTR /R "julia-0.3" >nul &
-    IF ERRORLEVEL 0 C:\projects\julia\bin\julia -F -e "Pkg.build(\"IJulia\")"
+  - ECHO JULIAVERSION | FINDSTR /R "julia-0.3" > NULL
+    IF NOT ERRORLEVEL 1 C:\projects\julia\bin\julia -F -e "Pkg.build(\"IJulia\")"
     IF ERRORLEVEL 1 C:\projects\julia\bin\julia --startup-file=yes -e "Pkg.build(\"IJulia\")"
 
 test_script:
