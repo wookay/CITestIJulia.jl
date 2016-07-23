@@ -39,9 +39,6 @@ install:
 
 build_script:
 # If there's a newer build queued for the same PR, cancel this one
-  - ECHO %JULIAVERSION% | FINDSTR /R "julia-0.3" > nul & IF NOT ERRORLEVEL 1 ECHO "f1"
-  - ECHO %JULIAVERSION% | FINDSTR /R "julia-0.3" > nul & IF ERRORLEVEL 1 ECHO "f2"
-
   - cd ..
   - git clone https://github.com/wookay/CITestIJulia.jl.git IJulia.jl
   - cd IJulia.jl
@@ -56,10 +53,7 @@ build_script:
   - C:\projects\julia\bin\julia -e "versioninfo(true)"
   #- C:\projects\julia\bin\julia -e "Pkg.init(); Pkg.add(\"WinRPM\");
   #  using WinRPM; WinRPM.update(true)"
-  - ECHO %JULIAVERSION% | FINDSTR /R "julia-0.3" > nul & IF NOT ERRORLEVEL 1
-    C:\projects\julia\bin\julia -F -e "Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"
-  - ECHO %JULIAVERSION% | FINDSTR /R "julia-0.3" > nul & IF ERRORLEVEL 1
-    C:\projects\julia\bin\julia --startup-file=yes -e "Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"
+  - C:\projects\julia\bin\julia -F -e "Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"
 
 test_script:
   - C:\projects\julia\bin\julia --check-bounds=yes -e "Pkg.test(\"IJulia\")"
