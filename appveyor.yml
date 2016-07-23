@@ -59,9 +59,9 @@ build_script:
   - C:\projects\julia\bin\julia -e "Pkg.init(); Pkg.add(\"WinRPM\");
     using WinRPM; WinRPM.update(true)"
   - C:\projects\julia\bin\julia -e "Pkg.clone(pwd(), \"IJulia\")"
-  - ECHO JULIAVERSION | FINDSTR /R "julia-0.3" > NULL &
-    IF NOT ERRORLEVEL 1 C:\projects\julia\bin\julia -F -e "Pkg.build(\"IJulia\")"
-    IF ERRORLEVEL 1 C:\projects\julia\bin\julia --startup-file=yes -e "Pkg.build(\"IJulia\")"
+  - ECHO JULIAVERSION | FINDSTR /R "julia-0.3" > nul
+  - IF NOT ERRORLEVEL 1 C:\projects\julia\bin\julia -F -e "Pkg.build(\"IJulia\")"
+  - IF ERRORLEVEL 1 C:\projects\julia\bin\julia --startup-file=yes -e "Pkg.build(\"IJulia\")"
 
 test_script:
   - C:\projects\julia\bin\julia --check-bounds=yes -e "Pkg.test(\"IJulia\")"
