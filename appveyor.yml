@@ -1,55 +1,31 @@
 environment:
-  PYTHON:         "C:\\Python35_64"
-  PYTHON_VERSION: "3.5"
-  PYTHON_ARCH:    "64"
-  USE_QT_API:     "PyQt5"
   matrix:
 #  - JULIAVERSION: "julialang/bin/winnt/x86/0.3/julia-0.3-latest-win32.exe"
 #  - JULIAVERSION: "julialang/bin/winnt/x64/0.3/julia-0.3-latest-win64.exe"
 #  - JULIAVERSION: "julialang/bin/winnt/x86/0.4/julia-0.4-latest-win32.exe"
-##  - JULIAVERSION: "julialang/bin/winnt/x64/0.4/julia-0.4-latest-win64.exe"
+#  - JULIAVERSION: "julialang/bin/winnt/x64/0.4/julia-0.4-latest-win64.exe"
 #  - JULIAVERSION: "julianightlies/bin/winnt/x86/julia-latest-win32.exe"
   - JULIAVERSION: "julianightlies/bin/winnt/x64/julia-latest-win64.exe"
-
-
-branches:
-  only:
-    - master
-    - /release-.*/
 
 notifications:
   - provider: Email
     on_build_success: false
-    on_build_failure: false
-    on_build_status_changed: false
+    on_build_failure: true
+    on_build_status_changed: true
 
 install:
-# Download most recent Julia Windows binary
   - ps: (new-object net.webclient).DownloadFile(
         $("http://s3.amazonaws.com/"+$env:JULIAVERSION),
         "C:\projects\julia-binary.exe")
-# Run installer silently, output to C:\projects\julia
   - C:\projects\julia-binary.exe /S /D=C:\projects\julia
 
 build_script:
-# If there's a newer build queued for the same PR, cancel this one
   - cd ..
-  - git clone https://github.com/wookay/CITestIJulia.jl.git IJulia.jl
-  - cd IJulia.jl
+  - git clone https://github.com/wookay/CITestIJulia.jl.git Conda.jl
+  - cd Conda.jl
   - IF EXIST .git\shallow (git fetch --unshallow)
-
-# Remove C:\MinGW\bin from the path, the version of MinGW installed on
-# AppVeyor is not compatible with the cross-compiled Julia Windows binaries
-  - set PATH=%PATH:C:\MinGW\bin;=%
-# Remove C:\Perl\bin from the path, otherwise it breaks shasum with an error
-# Unable to find Digest::SHA or Digest::SHA::PurePerl
-#  - '"%VS120COMNTOOLS%\..\..\VC\vcvarsall.bat" x86_amd64'
-  - C:\projects\julia\bin\julia -e "versioninfo(true)"
-  #- C:\projects\julia\bin\julia -e "rm(\"C:\\Users\\appveyor\\.julia\\v0.5\\Conda\", force=true, recursive=true)"
-  #- C:\projects\julia\bin\julia -e "Pkg.init(); Pkg.add(\"WinRPM\");
-  #  using WinRPM; WinRPM.update(true)"
-  - C:\projects\julia\bin\julia -F -e "Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"
-  - C:\projects\julia\bin\julia -e "println(readall(\"C:\\Users\\appveyor\\.julia\\v0.5\\Conda\\deps\\usr\\condarc-julia\"))"
-
+  # Test #17 by using ENV[\"HOME\"]=joinpath(homedir(),\"Conda test home\")
+  - C:\projects\julia\bin\julia -e "versioninfo(); p = joinpath(homedir(),\"Conda test home\"); mkdir(p); ENV[\"HOME\"]=p; Pkg.clone(pwd(), \"Conda\"); Pkg.build(\"Conda\")"
+  
 test_script:
-  - C:\projects\julia\bin\julia --check-bounds=yes -e "Pkg.test(\"IJulia\")"
+  - C:\projects\julia\bin\julia --check-bounds=yes -e "ENV[\"HOME\"]=joinpath(homedir(),\"Conda test home\"); Pkg.test(\"Conda\")"

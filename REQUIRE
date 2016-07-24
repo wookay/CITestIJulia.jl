@@ -1,6 +1,4 @@
-julia 0.3
-Nettle 0.2
-JSON 0.5
-ZMQ 0.3.1
-Compat 0.7.20
-Conda 0.2.2
+julia 0.3.3
+BinDeps
+Compat 0.7.15
+JSON
