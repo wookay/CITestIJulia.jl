@@ -49,6 +49,7 @@ build_script:
   #- C:\projects\julia\bin\julia -e "Pkg.init(); Pkg.add(\"WinRPM\");
   #  using WinRPM; WinRPM.update(true)"
   - C:\projects\julia\bin\julia -F -e "Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"
+  - C:\projects\julia\bin\julia -e "println(readall(\"C:\\Users\\appveyor\\.julia\\v0.5\\Conda\\deps\\usr\\condarc-julia\"))"
 
 test_script:
   - C:\projects\julia\bin\julia --check-bounds=yes -e "Pkg.test(\"IJulia\")"
