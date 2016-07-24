@@ -1,4 +1,8 @@
 environment:
+  PYTHON:         "C:\\Python35_64"
+  PYTHON_VERSION: "3.5"
+  PYTHON_ARCH:    "64"
+  USE_QT_API:     "PyQt5"
   matrix:
 #  - JULIAVERSION: "julialang/bin/winnt/x86/0.3/julia-0.3-latest-win32.exe"
   - JULIAVERSION: "julialang/bin/winnt/x64/0.3/julia-0.3-latest-win64.exe"
@@ -6,6 +10,7 @@ environment:
 ##  - JULIAVERSION: "julialang/bin/winnt/x64/0.4/julia-0.4-latest-win64.exe"
 #  - JULIAVERSION: "julianightlies/bin/winnt/x86/julia-latest-win32.exe"
   - JULIAVERSION: "julianightlies/bin/winnt/x64/julia-latest-win64.exe"
+
 
 branches:
   only:
@@ -17,17 +22,6 @@ notifications:
     on_build_success: false
     on_build_failure: false
     on_build_status_changed: false
-
-
-clone_depth: 50
-
-init:
-# Carriage returns are bad
-  - git config --global core.autocrlf input
-
-cache:
-# Cache large downloads to avoid network unreliability
-  - usr/bin/busybox.exe
 
 install:
 # Download most recent Julia Windows binary
