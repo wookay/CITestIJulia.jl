@@ -45,6 +45,7 @@ build_script:
 # Unable to find Digest::SHA or Digest::SHA::PurePerl
 #  - '"%VS120COMNTOOLS%\..\..\VC\vcvarsall.bat" x86_amd64'
   - C:\projects\julia\bin\julia -e "versioninfo(true)"
+  - C:\projects\julia\bin\julia -e "rm(\"C:\\Users\\appveyor\\.julia\\v0.5\\Conda\\deps\\usr\\pkgs\\.trash\", force=true, recursive=true)"
   #- C:\projects\julia\bin\julia -e "Pkg.init(); Pkg.add(\"WinRPM\");
   #  using WinRPM; WinRPM.update(true)"
   - C:\projects\julia\bin\julia -F -e "Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"
