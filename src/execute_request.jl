@@ -59,16 +59,15 @@ function undisplay(x)
     return x
 end
 
-#######################################################################
-
-if v"0.4.0-dev+6438" <= VERSION < v"0.4.0-dev+6492" # julia PR #12250
-    function show_bt(io::IO, top_func::Symbol, t, set)
+function show_bt(io::IO, top_func::Symbol, t, set)
+    if VERSION >= v"0.5.0-pre+5636" # julia PR #17570
+        Base.show_backtrace(io, t)
+    elseif v"0.4.0-dev+6438" <= VERSION < v"0.4.0-dev+6492" # julia PR #12250
         process_entry(lastname, lastfile, lastline, n) = Base.show_trace_entry(io, lastname, lastfile, lastline, n)
         Base.process_backtrace(process_entry, top_func, t, set)
-    end
-else
-    show_bt(io::IO, top_func::Symbol, t, set) =
+    else
         Base.show_backtrace(io, top_func, t, set)
+    end
 end
 
 # return the content of a pyerr message for exception e
