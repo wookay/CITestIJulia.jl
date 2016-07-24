@@ -37,10 +37,11 @@ build_script:
   - cd IJulia.jl
   - C:\projects\julia\bin\julia -F -e "versioninfo(true);
       Pkg.clone(pwd(), \"IJulia\");
-      # workaround for linking qt \
+
       using Conda;
       try Conda.add(\"qt\") end;
       postlink = normpath(Pkg.dir(\"Conda\"), \"deps/usr/pkgs/qt-4.8.7-vc9_9/Scripts/.qt-post-link.bat\");
       isfile(postlink) && rm(postlink);
+
       Pkg.build(\"IJulia\")"
   - C:\projects\julia\bin\julia -e "Pkg.test(\"IJulia\")"
