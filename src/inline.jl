@@ -1,11 +1,4 @@
-module IPythonDisplay
-
-using IJulia, Compat
-import IJulia: send_ipython, publish, msg_pub, execute_msg,
-               metadata, display_dict, displayqueue, undisplay
-
 import Base: display, redisplay
-export display, redisplay, InlineDisplay, undisplay
 
 immutable InlineDisplay <: Display end
 
@@ -15,12 +8,12 @@ const ipy_mime = [ "text/html", "text/latex", "image/svg+xml", "image/png", "ima
 
 for mime in ipy_mime
     @eval begin
-        function display(d::InlineDisplay, ::MIME{@compat(Symbol($mime))}, x)
-            send_ipython(publish,
+        function display(d::InlineDisplay, ::MIME{Symbol($mime)}, x)
+            send_ipython(publish[],
                          msg_pub(execute_msg, "display_data",
-                                 @compat Dict("source" => "julia", # optional
+                                 Dict("source" => "julia", # optional
                                   "metadata" => metadata(x), # optional
-                                  "data" => @compat Dict($mime => stringmime(MIME($mime), x)))))
+                                  "data" => Dict($mime => stringmime(MIME($mime), x)))))
         end
     end
 end
@@ -35,9 +28,9 @@ display(d::InlineDisplay, m::MIME"text/javascript", x) = display(d, MIME("applic
 # output types, so that IPython can choose what to display.
 function display(d::InlineDisplay, x)
     undisplay(x) # dequeue previous redisplay(x)
-    send_ipython(publish,
+    send_ipython(publish[],
                  msg_pub(execute_msg, "display_data",
-                         @compat Dict("source" => "julia", # optional
+                         Dict("source" => "julia", # optional
                                       "metadata" => metadata(x), # optional
                                       "data" => display_dict(x))))
 end
@@ -59,5 +52,3 @@ function display()
         display(x)
     end
 end
-
-end # module

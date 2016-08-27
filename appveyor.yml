@@ -1,10 +1,8 @@
 environment:
   matrix:
-#  - JULIAVERSION: "julialang/bin/winnt/x86/0.3/julia-0.3-latest-win32.exe"
-  - JULIAVERSION: "julialang/bin/winnt/x64/0.3/julia-0.3-latest-win64.exe"
-#  - JULIAVERSION: "julialang/bin/winnt/x86/0.4/julia-0.4-latest-win32.exe"
-  - JULIAVERSION: "julialang/bin/winnt/x64/0.4/julia-0.4-latest-win64.exe"
-#  - JULIAVERSION: "julianightlies/bin/winnt/x86/julia-latest-win32.exe"
+  - JULIAVERSION: "julialang/bin/winnt/x86/0.5/julia-0.5-latest-win32.exe"
+  - JULIAVERSION: "julialang/bin/winnt/x64/0.5/julia-0.5-latest-win64.exe"
+  - JULIAVERSION: "julianightlies/bin/winnt/x86/julia-latest-win32.exe"
   - JULIAVERSION: "julianightlies/bin/winnt/x64/julia-latest-win64.exe"
 
 branches:
@@ -35,11 +33,8 @@ build_script:
   - cd ..
   - git clone https://github.com/wookay/CITestIJulia.jl.git IJulia.jl
   - cd IJulia.jl
-  - C:\projects\julia\bin\julia -F -e "versioninfo(true);
-      Pkg.clone(pwd(), \"IJulia\");
-      using Conda;
-      try Conda.add(\"qt\") end;
-      postlink = normpath(Pkg.dir(\"Conda\"), \"deps/usr/pkgs/qt-4.8.7-vc9_9/Scripts/.qt-post-link.bat\");
-      isfile(postlink) && rm(postlink);
-      Pkg.build(\"IJulia\")"
+  - C:\projects\julia\bin\julia -e "versioninfo();
+       Pkg.clone(pwd(), \"IJulia\"); Pkg.build(\"IJulia\")"
+
+test_script:
   - C:\projects\julia\bin\julia -e "Pkg.test(\"IJulia\")"

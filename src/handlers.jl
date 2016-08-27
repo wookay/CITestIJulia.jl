@@ -1,7 +1,7 @@
 include("comm_manager.jl")
 include("execute_request.jl")
 
-using IJulia.CommManager
+using .CommManager
 
 # Don't send previous lines to the completions function,
 # due to issue #380.  Find the start of the first line
@@ -25,8 +25,8 @@ function complete_request(socket, msg)
     cursor_chr = msg.content["cursor_pos"]
     cursorpos = cursor_chr <= 0 ? 0 : chr2ind(code, cursor_chr)
     if isspace(code[1:cursorpos])
-        send_ipython(requests, msg_reply(msg, "complete_reply",
-                                 @compat Dict("status" => "ok",
+        send_ipython(requests[], msg_reply(msg, "complete_reply",
+                                 Dict("status" => "ok",
                                               "matches" => String[],
                                               "cursor_start" => cursor_chr,
                                               "cursor_end" => cursor_chr)))
@@ -42,62 +42,79 @@ function complete_request(socket, msg)
         cursor_start = ind2chr(code, first(positions)) - 1
         cursor_end = ind2chr(code, last(positions))
     end
-    send_ipython(requests, msg_reply(msg, "complete_reply",
-                                     @compat Dict("status" => "ok",
+    send_ipython(requests[], msg_reply(msg, "complete_reply",
+                                     Dict("status" => "ok",
                                                   "matches" => comps,
                                                   "cursor_start" => cursor_start,
                                                   "cursor_end" => cursor_end)))
 end
 
 function kernel_info_request(socket, msg)
-    send_ipython(requests,
+    send_ipython(requests[],
                  msg_reply(msg, "kernel_info_reply",
-                           @compat Dict("protocol_version" => "5.0",
+                           Dict("protocol_version" => "5.0",
                                         "implementation" => "ijulia",
                                         # TODO: "implementation_version" => IJulia version string from Pkg
                                         "language_info" =>
-                                        @compat(Dict("name" => "julia",
-                                                     "version" =>
-                                                     string(VERSION.major, '.',
-                                                            VERSION.minor, '.',
-                                                            VERSION.patch),
-                                                     "mimetype" => "application/julia",
-                                                     "file_extension" => ".jl")),
+                                        Dict("name" => "julia",
+                                             "version" =>
+                                             string(VERSION.major, '.',
+                                                    VERSION.minor, '.',
+                                                    VERSION.patch),
+                                             "mimetype" => "application/julia",
+                                             "file_extension" => ".jl"),
                                         "banner" => "Julia: A fresh approach to technical computing.",
                                         "help_links" => [
-                                                         @compat(Dict("text"=>"Julia Home Page",
-                                                                      "url"=>"http://julialang.org/")),
-                                                         @compat(Dict("text"=>"Julia Documentation",
-                                                                      "url"=>"http://docs.julialang.org/")),
-                                                         @compat(Dict("text"=>"Julia Packages",
-                                                                      "url"=>"http://pkg.julialang.org/"))
+                                                         Dict("text"=>"Julia Home Page",
+                                                              "url"=>"http://julialang.org/"),
+                                                         Dict("text"=>"Julia Documentation",
+                                                              "url"=>"http://docs.julialang.org/"),
+                                                         Dict("text"=>"Julia Packages",
+                                                              "url"=>"http://pkg.julialang.org/")
                                                         ])))
 end
 
 function connect_request(socket, msg)
-    send_ipython(requests,
+    send_ipython(requests[],
                  msg_reply(msg, "connect_reply",
-                           @compat Dict("shell_port" => profile["shell_port"],
+                           Dict("shell_port" => profile["shell_port"],
                                         "iopub_port" => profile["iopub_port"],
                                         "stdin_port" => profile["stdin_port"],
                                         "hb_port" => profile["hb_port"])))
 end
 
 function shutdown_request(socket, msg)
-    send_ipython(requests, msg_reply(msg, "shutdown_reply",
+    send_ipython(requests[], msg_reply(msg, "shutdown_reply",
                                      msg.content))
     sleep(0.1) # short delay (like in ipykernel), to hopefully ensure shutdown_reply is sent
     exit()
 end
 
-# TODO: better Julia help integration (issue #13)
-docdict(o) = @compat Dict()
-@compat docdict(o::Union{Function,DataType}) = display_dict(methods(o))
-function docdict(s::AbstractString, o)
-    d = sprint(help, s)
-    return startswith(d, "Symbol not found.") ? docdict(o) : @compat Dict("text/plain" => d)
+stripdots(ex) = :_
+stripdots(ex::Symbol) = ex
+stripdots(ex::Expr) = Meta.isexpr(ex, :.) ? stripdots(ex.args[2]) : :_
+stripdots(ex::QuoteNode) = ex.value
+stripdots(ex::GlobalRef) = ex.name
+rm_sideeffects(ex) = ex
+function rm_sideeffects(ex::Expr)
+    if Meta.isexpr(ex, :call)
+        name = stripdots(ex.args[1])
+        if name == :repl_search || name == :repl_corrections
+            return nothing
+        else
+            return ex
+        end
+    else
+        return Expr(ex.head, map(rm_sideeffects, ex.args)...)
+    end
 end
-
+function docdict(s::AbstractString)
+    ex = macroexpand(parse(helpcode(s)))
+    # unfortunately, the REPL help macros sometimes have
+    # expressions with side effects (I/O), so we need to
+    # remove these.
+    display_dict(eval(Main, rm_sideeffects(ex)))
+end
 import Base: is_id_char, is_id_start_char
 function get_token(code, pos)
     # given a string and a cursor position, find substring to request
@@ -133,24 +150,23 @@ function get_token(code, pos)
     return code[startpos:endpos]
 end
 
-function inspect_request_0x535c5df2(socket, msg)
+function inspect_request(socket, msg)
     try
         code = msg.content["code"]
         s = get_token(code, chr2ind(code, msg.content["cursor_pos"]))
-
         if isempty(s)
-            content = @compat Dict("status" => "ok", "found" => false)
+            content = Dict("status" => "ok", "found" => false)
         else
-            d = docdict(s, eval(Main, parse(s)))
-            content = @compat Dict("status" => "ok",
-                                   "found" => !isempty(d),
-                                   "data" => d)
+            d = docdict(s)
+            content = Dict("status" => "ok",
+                           "found" => !isempty(d),
+                           "data" => d)
         end
-        send_ipython(requests, msg_reply(msg, "inspect_reply", content))
+        send_ipython(requests[], msg_reply(msg, "inspect_reply", content))
     catch e
-        content = error_content(e, backtrace_top=:inspect_request_0x535c5df2);
+        content = error_content(e, backtrace_top=:inspect_request);
         content["status"] = "error"
-        send_ipython(requests,
+        send_ipython(requests[],
                      msg_reply(msg, "inspect_reply", content))
     end
 end
@@ -158,24 +174,24 @@ end
 function history_request(socket, msg)
     # we will just send back empty history for now, pending clarification
     # as requested in ipython/ipython#3806
-    send_ipython(requests,
+    send_ipython(requests[],
                  msg_reply(msg, "history_reply",
-                           @compat Dict("history" => [])))
+                           Dict("history" => [])))
 end
 
 function is_complete_request(socket, msg)
     ex = parse(msg.content["code"], raise=false)
     status = Meta.isexpr(ex, :incomplete) ? "incomplete" : Meta.isexpr(ex, :error) ? "invalid" : "complete"
-    send_ipython(requests,
+    send_ipython(requests[],
                  msg_reply(msg, "is_complete_reply",
-                           @compat Dict("status"=>status, "indent"=>"")))
+                           Dict("status"=>status, "indent"=>"")))
 end
 
-const handlers = @compat(Dict{AbstractString,Function}(
-    "execute_request" => execute_request_0x535c5df2,
+const handlers = Dict{String,Function}(
+    "execute_request" => execute_request,
     "complete_request" => complete_request,
     "kernel_info_request" => kernel_info_request,
-    "inspect_request" => inspect_request_0x535c5df2,
+    "inspect_request" => inspect_request,
     "connect_request" => connect_request,
     "shutdown_request" => shutdown_request,
     "history_request" => history_request,
@@ -184,4 +200,4 @@ const handlers = @compat(Dict{AbstractString,Function}(
     "comm_info_request" => comm_info_request,
     "comm_msg" => comm_msg,
     "comm_close" => comm_close
-))
+)
